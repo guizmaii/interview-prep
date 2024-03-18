@@ -3,8 +3,16 @@ package com.guizmaii.interview.prep
 import scala.sys.exit
 import scala.util.Random
 
-trait Gen[T] {
-  def sample(): T
+trait Gen[A] {
+  def sample(): A
+
+  final def map[B](f: A => B): Gen[B]          = () => f(sample())
+  final def flatMap[B](f: A => Gen[B]): Gen[B] = () => f(sample()).sample()
+  final def filter(f: A => Boolean): Gen[A]    = () => {
+    var value = sample()
+    while (!f(value)) value = sample()
+    value
+  }
 }
 
 object Gen {
@@ -94,9 +102,21 @@ object PropertiesTest extends App {
   val stringProperty = forAll[String]("s0 + s0 => s0.length * 2")(s => (s + s).length == 2 * s.length)
   val addtitionTest  = test("1 + 1 == 2")(1 + 1 == 2)
 
+  final case class Person(age: Int, name: String)
+  object Person {
+    implicit val personGen: Gen[Person] =
+      for {
+        age  <- Gen[Int].filter(_ >= 0)
+        name <- Gen[String]
+      } yield Person(age, name)
+  }
+
+  val personProperty = forAll[Person]("p.age >= 0")(p => p.age >= 0)
+
   suite("My properties suite")(
     intProperty,
     stringProperty,
     addtitionTest,
+    personProperty,
   )
 }
