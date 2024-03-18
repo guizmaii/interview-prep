@@ -9,8 +9,8 @@ object BTree {
     node match {
       case BTree.Leaf(value)                => println(value)
       case BTree.Branch(left, value, right) =>
-        println(value)
         inOrderTraversal(left)
+        println(value)
         inOrderTraversal(right)
     }
 }
