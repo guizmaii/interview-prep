@@ -91,8 +91,8 @@ object PropertiesTest extends App {
   import NaiveQuickCheck._
 
   val intProperty    = forAll[Int]("int + int <=> int * 2")(n => n + n == 2 * n)
-  val stringProperty = forAll[String]("string + string => string.length * 2")(s => (s + s).length == 3 * s.length)
-  val addtitionTest  = test("1 + 1 == 2")(1 + 1 == 3)
+  val stringProperty = forAll[String]("s0 + s0 => s0.length * 2")(s => (s + s).length == 2 * s.length)
+  val addtitionTest  = test("1 + 1 == 2")(1 + 1 == 2)
 
   suite("My properties suite")(
     intProperty,
