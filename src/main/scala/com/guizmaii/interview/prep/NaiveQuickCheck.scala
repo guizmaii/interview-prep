@@ -12,6 +12,7 @@ object Gen {
 
   private val random = new Random()
 
+  implicit val unit: Gen[Unit]          = () => ()
   implicit val intGen: Gen[Int]         = () => random.nextInt()
   implicit val longGen: Gen[Long]       = () => random.nextLong()
   implicit val booleanGen: Gen[Boolean] = () => random.nextBoolean()
@@ -35,6 +36,7 @@ object Result {
 trait Property[T] {
   def name: String
   def check: Result[T]
+  def isUnitTest: Boolean
 }
 
 final case class PropertyOptions(sampleSize: Int)
@@ -42,10 +44,18 @@ final case class PropertyOptions(sampleSize: Int)
 object NaiveQuickCheck {
   implicit val defaultOptions: PropertyOptions = PropertyOptions(sampleSize = 100)
 
+  def test(_name: => String)(test: => Boolean): Property[Unit] =
+    new Property[Unit] {
+      override def name: String        = _name
+      override def isUnitTest: Boolean = true
+      override def check: Result[Unit] = if (test) Result.passed else Result.falsified(())
+    }
+
   def forAll[T](_name: => String)(test: T => Boolean)(implicit gen: Gen[T], options: PropertyOptions): Property[T] =
     new Property[T] {
-      override def name: String     = _name
-      override def check: Result[T] = {
+      override def name: String        = _name
+      override def isUnitTest: Boolean = false // is a property, not a unit-test
+      override def check: Result[T]    = {
         var i = 0
         while (i < options.sampleSize) {
           val value = gen.sample()
@@ -57,15 +67,18 @@ object NaiveQuickCheck {
     }
 
   def suite(name: String)(properties: Property[_]*): Unit = {
-    println(Console.YELLOW + s"🔬\t Running suite: $name")
+    println(Console.YELLOW + s"🔬\tRunning suite: $name")
 
     var exitValue = 0
     properties.foreach { p =>
       p.check match {
-        case Result.Passed                =>
-          println(Console.GREEN + s"✅\t \"${p.name}\" ")
-        case Result.Falsified(failedWith) =>
-          println(Console.RED + s"❌\t \"${p.name}\"  with value '$failedWith'")
+        case Result.Passed                       =>
+          println(Console.GREEN + s"✅\t${p.name}")
+        case Result.Falsified(_) if p.isUnitTest =>
+          println(Console.RED + s"❌\t${p.name} - Test failed")
+          exitValue = 1
+        case Result.Falsified(failedWith)        =>
+          println(Console.RED + s"❌\t${p.name} - Property failed with value: $failedWith")
           exitValue = 1
       }
     }
@@ -78,10 +91,12 @@ object PropertiesTest extends App {
   import NaiveQuickCheck._
 
   val intProperty    = forAll[Int]("int + int <=> int * 2")(n => n + n == 2 * n)
-  val stringProperty = forAll[String]("string + string => string.length * 2")(s => (s + s).length == 2 * s.length)
+  val stringProperty = forAll[String]("string + string => string.length * 2")(s => (s + s).length == 3 * s.length)
+  val addtitionTest  = test("1 + 1 == 2")(1 + 1 == 3)
 
   suite("My properties suite")(
     intProperty,
     stringProperty,
+    addtitionTest,
   )
 }
