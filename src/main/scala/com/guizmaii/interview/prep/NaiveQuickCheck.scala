@@ -1,7 +1,7 @@
 package com.guizmaii.interview.prep
 
-import scala.sys.exit
 import scala.util.Random
+import java.lang.System.{currentTimeMillis => currentTime}
 
 trait Gen[A] {
   def sample(): A
@@ -75,22 +75,23 @@ object NaiveQuickCheck {
     }
 
   def suite(name: String)(properties: Property[_]*): Unit = {
-    println(Console.YELLOW + s"🔬\tRunning suite: $name")
+    println(s"🔬 Running suite: $name")
 
-    var exitValue = 0
+    val executionStart: Long = currentTime
+
     properties.foreach { p =>
       p.check match {
         case Result.Passed                       =>
-          println(Console.GREEN + s"✅\t${p.name}")
+          println(s"✅ ${p.name}")
         case Result.Falsified(_) if p.isUnitTest =>
-          println(Console.RED + s"❌\t${p.name} - Test failed")
-          exitValue = 1
+          println(s"❌ ${p.name} - Test failed")
         case Result.Falsified(failedWith)        =>
-          println(Console.RED + s"❌\t${p.name} - Property failed with value: $failedWith")
-          exitValue = 1
+          println(s"❌ ${p.name} - Property failed with value: $failedWith")
       }
     }
-    exit(exitValue)
+
+    println(s"→ Suite executed in ${currentTime - executionStart}ms")
+    println()
   }
 }
 
@@ -119,4 +120,6 @@ object PropertiesTest extends App {
     addtitionTest,
     personProperty,
   )
+
+  println(1 + 1)
 }
