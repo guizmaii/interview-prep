@@ -1,0 +1,8 @@
+# This is a comment
+-Dfile.encoding=UTF8
+-Xms2G
+-Xmx8G
+-XX:+UseG1GC
+--add-opens=java.base/java.util=ALL-UNNAMED
+--add-opens=java.base/java.lang=ALL-UNNAMED
+-Dquill.macro.log=false # See https://getquill.io/#logging-logging-to-a-file-at-compile-time
