@@ -8,7 +8,6 @@ ThisBuild / scalafmtCheck              := true
 ThisBuild / scalafmtSbtCheck           := true
 ThisBuild / scalafmtOnCompile          := (if (insideCI.value) false else true)
 ThisBuild / semanticdbEnabled          := true
-ThisBuild / semanticdbOptions += "-P:semanticdb:synthetics:on"
 ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision // use Scalafix compatible version
 ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
 ThisBuild / scalafixDependencies ++= List(

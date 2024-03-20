@@ -1,7 +1,7 @@
 package com.guizmaii.interview.prep
 
+import java.lang.System.currentTimeMillis as currentTime
 import scala.util.Random
-import java.lang.System.{currentTimeMillis => currentTime}
 
 trait Gen[A] {
   def sample(): A
@@ -34,7 +34,7 @@ object Gen {
 
 sealed abstract class Result[T]
 object Result {
-  final case object Passed                     extends Result[Any]
+  case object Passed                           extends Result[Any]
   final case class Falsified[T](failedWith: T) extends Result[T]
 
   def passed[T]: Result[T]                   = Passed.asInstanceOf[Result[T]]
@@ -97,7 +97,7 @@ object NaiveQuickCheck {
 
 // Usage
 object PropertiesTest extends App {
-  import NaiveQuickCheck._
+  import NaiveQuickCheck.*
 
   val intProperty    = forAll[Int]("int + int <=> int * 2")(n => n + n == 2 * n)
   val stringProperty = forAll[String]("s0 + s0 => s0.length * 2")(s => (s + s).length == 2 * s.length)
