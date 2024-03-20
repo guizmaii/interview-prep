@@ -1,6 +1,6 @@
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-ThisBuild / scalaVersion               := "2.13.13"
+ThisBuild / scalaVersion               := "3.3.3"
 ThisBuild / version                    := "0.1.0-SNAPSHOT"
 ThisBuild / organization               := "com.guizmaii.interview.prep"
 ThisBuild / organizationName           := "guizmaii"
